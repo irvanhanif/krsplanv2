@@ -1,0 +1,116 @@
+.data-input{
+    position: relative;
+    margin: auto;
+    margin-top: 170px;
+    width: 85%;
+}
+.top{
+    position: absolute;
+    background-color: #1C315E;
+    height: 200px; 
+    width: 100%;
+    top: 0;
+}
+.form-add-mk{
+    display: flex;
+    margin: auto;
+    justify-content: space-between;
+    font-size: 18px;
+    color: white;
+    background-color: #FD841F;
+    padding: 10px 20px;
+    border-radius: 20px;
+    gap: 0 20px;
+}
+.label{
+    padding: 5px 0;
+}
+.control{
+    display: flex;
+    gap: 0 5px;
+}
+.control input, .control select{
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 25px;
+    border: none;
+    text-indent: 10px;
+    outline: none;
+    color: white;
+    font-size: 16px;
+    width: 120px;
+}
+.control input::placeholder{
+    color: rgb(255, 255, 255, .75);
+}
+.control option{
+    background-color: #FD841F;
+}
+.control button{
+    background-color: #1C315E;
+    padding: 5px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+.data-mk{
+    margin-top: 25px;
+    width: 100%;
+    border-spacing: 10;
+}
+.data-mk td{
+    padding: 10px;
+    text-align: center;
+}
+.data-mk th{
+    background-color: #1C315E;
+    color: white;
+    border-radius: 25px;
+    padding: 10px;
+    width: 20%;
+}
+.data-mk td:last-child{
+    gap: 5px;
+    justify-content: center;
+    display: flex;
+}
+table button{
+    padding: 5px 20px;
+    font-size: 16px;
+    border-radius: 25px;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+table tr:nth-child(2n-1) button{
+    background-color: #FD841F;
+}
+table tr:nth-child(2n) button{
+    background-color: #1C315E;
+}
+.gen-btn{
+    margin-top: 50px;
+    margin-bottom: 20px;
+}
+.generate-btn{
+    text-decoration: none;
+    color: white;
+    padding: 5px 20px;
+    font-size: 20px;
+    border-radius: 25px;
+    background-color: #1C315E;
+    width: 20%;
+    margin: auto;
+    justify-content: center;
+    display: flex;
+    border: none;
+    cursor: pointer;
+}
+.generate-btn:hover{
+    color: #1C315E;
+    background: none;
+    font-weight: bold;
+    padding: 4px 20px;
+    border: 1px solid #1C315E;
+}
