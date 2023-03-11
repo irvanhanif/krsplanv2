@@ -77,7 +77,6 @@ function Table() {
           }
         } else {
           if(mataKuliah.kelas != matkul.kelas
-            // (mataKuliah.hari != matkul.hari || mataKuliah.jam != matkul.jam)
             ){
             if(indexKey.length == 0) indexKey.push(jadwal.indexOf(mataKuliah))
               indexKey.push(jadwal.indexOf(matkul))
@@ -117,7 +116,6 @@ function Table() {
     mkArray.forEach(matkul => {
       let indexKode = getIndexMkByKode(mkArray, matkul);
       const tempMK = matkul
-      // console.log(tempMK)
       let batas = indexKode.length;
       
       while (batas > 1) {
@@ -162,30 +160,21 @@ function Table() {
             (
               ((convertTimetoInt(mkSplice, 0) <= convertTimetoInt(matkul[i], 1)) &&
               (convertTimetoInt(mkSplice, 1) >= convertTimetoInt(matkul[i+1], 0))) 
-              // ||
-              // ((convertTimetoInt(mkSplice, 0) == convertTimetoInt(jadwal[i], 0)) &&
-              // (convertTimetoInt(mkSplice, 1) == convertTimetoInt(jadwal[i], 1)))
             )          
             ){
-              // console.log((convertTimetoInt(mkSplice, 0) + " "+ convertTimetoInt(matkul[i], 1)))
-              // console.log((convertTimetoInt(mkSplice, 1) + " "+ convertTimetoInt(matkul[i+1], 0)))
             canAdd = false;
           }
         }  
       }
       return canAdd;      
     }
-    console.log([...splice])
+    // console.log([...splice])
     let batas = 5;
     do{
-      // console.log("splice")
     splice.forEach(mkSplice => {
-      // console.log(cekCanAddToJadwal(jadwal, mkSplice))
-      // console.log(mkSplice.kode)
-      console.log(cekKodeInJadwal(jadwal, mkSplice) + " " + mkSplice.kode + " " + mkSplice.kelas+  " " + cekCanAddToJadwal(jadwal, mkSplice))
-      // console.log(jadwal)
+      // console.log(cekKodeInJadwal(jadwal, mkSplice) + " " + mkSplice.kode + " " + mkSplice.kelas+  " " + cekCanAddToJadwal(jadwal, mkSplice))
       if(cekKodeInJadwal(jadwal, mkSplice) && cekCanAddToJadwal(jadwal, mkSplice)){
-        console.log("Ada")
+        // console.log("Ada")
         jadwal = [...jadwal, mkSplice]
         changeJadwal = true;
       }else{
@@ -194,21 +183,15 @@ function Table() {
     })
     batas--;
     }while(splice.length > 0 && batas > 0);
-
-    // console.log("eliminate start")
-    // console.log([...jadwal])
-    // console.log([...splice])
-    // console.log("eliminate stop")
     return [changeJadwal, [...jadwal], [...splice]]
   }
 
-  const eliminateMk = (days = [], mkArray = [], mkSpliced = []) => {
+  const eliminateMk = (days = [], mkArray = [], mkSpliced = [], hari = []) => {
     const deleteSimilarMk = (mkDay, jadwal = []) => {
       let splicedMatkul = [];
       for (let j = 0; j < jadwal.length; j++) {
         if(mkDay[0].kode == jadwal[j].kode && mkDay[0].kelas == jadwal[j].kelas
           && (mkDay[0].hari != jadwal[j].hari || mkDay[0].jam != jadwal[j].jam)){
-            console.log("hapus")
             const mkSplice = jadwal.splice(j, 1);
             splicedMatkul.push(mkSplice[0]);
           }
@@ -216,11 +199,9 @@ function Table() {
         return [splicedMatkul, [...jadwal]];
     }
 
-    const hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at"];
     let simJadwal = [];
     let resultCanAdd = false;
     let fixJadwal;
-    let jadwalConvert = [];
     let loop = 5;
     do{
       fixJadwal = [];
@@ -228,7 +209,6 @@ function Table() {
       console.log([...mkArray])
 
     days.forEach(day => {
-      // console.log(day)
       const matkul = getMKperDaysFromJadwal(mkArray, day);
       if(matkul.length > 1) {
         for (let i = 0; i < matkul.length; i++) {
@@ -240,23 +220,12 @@ function Table() {
             }
           }
         }
-        // console.log(simJadwal);
-        // console.log("matkul");
-        // console.log([...matkul]);
         for (let i = 0; i < matkul.length; i++) {
           for (let j = i+1; j < matkul.length; j++) {
             if(simJadwal[hari.indexOf(day)]){
               if(Array.isArray(simJadwal[hari.indexOf(day)])){
                 for (let k = 0; k < simJadwal.length; k++) {
                   if (matkul[i] != simJadwal[hari.indexOf(day)][k] &&
-                  // ((convertTimetoInt(matkul[i], 0) == convertTimetoInt(simJadwal[hari.indexOf(day)][k], 0) &&
-                  // convertTimetoInt(matkul[i], 1) == convertTimetoInt(simJadwal[hari.indexOf(day)][k], 1)) ||
-                  // (convertTimetoInt(matkul[i], 0) < convertTimetoInt(simJadwal[hari.indexOf(day)][k], 0) &&
-                  // convertTimetoInt(matkul[i], 1) <= convertTimetoInt(simJadwal[hari.indexOf(day)][k], 1)) ||
-                  // (convertTimetoInt(matkul[i], 0) > convertTimetoInt(simJadwal[hari.indexOf(day)][k], 0) &&
-                  // convertTimetoInt(matkul[i], 1) >= convertTimetoInt(simJadwal[hari.indexOf(day)][k], 1)) ||
-                  // (convertTimetoInt(matkul[i], 0) <= convertTimetoInt(simJadwal[hari.indexOf(day)][k], 0) &&
-                  // convertTimetoInt(matkul[i], 1) >= convertTimetoInt(simJadwal[hari.indexOf(day)][k], 1))) ){
                     (convertTimetoInt(matkul[i], 0) <= convertTimetoInt(simJadwal[hari.indexOf(day)][k], 0)) &&
                     (convertTimetoInt(matkul[i], 1) >= convertTimetoInt(simJadwal[hari.indexOf(day)][k], 1))){
                     const mkSplice = matkul.splice(i, 1);
@@ -265,14 +234,6 @@ function Table() {
                 }
               }else{
                 if (matkul[i] != simJadwal[hari.indexOf(day)] &&
-                  // ((convertTimetoInt(matkul[i], 0) == convertTimetoInt(simJadwal[hari.indexOf(day)], 0) &&
-                  // convertTimetoInt(matkul[i], 1) == convertTimetoInt(simJadwal[hari.indexOf(day)], 1)) ||
-                  // (convertTimetoInt(matkul[i], 0) < convertTimetoInt(simJadwal[hari.indexOf(day)], 0) &&
-                  // convertTimetoInt(matkul[i], 1) <= convertTimetoInt(simJadwal[hari.indexOf(day)], 1)) ||
-                  // (convertTimetoInt(matkul[i], 0) > convertTimetoInt(simJadwal[hari.indexOf(day)], 0) &&
-                  // convertTimetoInt(matkul[i], 1) >= convertTimetoInt(simJadwal[hari.indexOf(day)], 1)) ||
-                  // (convertTimetoInt(matkul[i], 0) <= convertTimetoInt(simJadwal[hari.indexOf(day)], 0) &&
-                  // convertTimetoInt(matkul[i], 1) >= convertTimetoInt(simJadwal[hari.indexOf(day)], 1))) ){
                   ((convertTimetoInt(matkul[i], 0) <= convertTimetoInt(simJadwal[hari.indexOf(day)], 0)) &&
                   (convertTimetoInt(matkul[i], 1) >= convertTimetoInt(simJadwal[hari.indexOf(day)], 1)) )){
                   const mkSplice = matkul.splice(i, 1);
@@ -336,6 +297,175 @@ function Table() {
     }
   }
 
+  const inputToTimeJadwal = (mkElminates = [], jamJadwal = [], hari = [], isJumat = false) => {
+    let fixJadwal = [];
+    mkElminates.fixJadwal.forEach(matkul => {
+      let start = false, end = false;
+      if(isJumat ? matkul.hari == "Jum'at" : matkul.hari != "Jum'at")
+      jamJadwal.forEach(time => {
+        if(convertTimetoInt(matkul, 0) == convertTimetoInt({jam: time}, 0)){
+          if(!Array.isArray(fixJadwal[hari.indexOf(matkul.hari)])){
+            fixJadwal[hari.indexOf(matkul.hari)] = [];
+          }
+          start = true
+          fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)] = matkul
+        }else if(convertTimetoInt(matkul, 1) == convertTimetoInt({jam: time}, 1)){
+          if(!Array.isArray(fixJadwal[hari.indexOf(matkul.hari)])){
+            fixJadwal[hari.indexOf(matkul.hari)] = []
+          }
+          end = true
+          fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)] = matkul
+        }else if(
+          (convertTimetoInt(matkul, 0) < convertTimetoInt({jam: time}, 0)) &&
+          (convertTimetoInt(matkul, 1) > convertTimetoInt({jam: time}, 1))
+          ){
+            if(!Array.isArray(fixJadwal[hari.indexOf(matkul.hari)])){
+              fixJadwal[hari.indexOf(matkul.hari)] = []
+            }
+            fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)] = matkul
+        }
+      })
+      // if(isJumat)
+      // {console.log("jamJadwal")
+      // console.log([...fixJadwal])}
+      if(isJumat ? matkul.hari == "Jum'at" : matkul.hari != "Jum'at")
+      if(!start) {
+        // console.log("jam awal " +matkul.jam + " " + matkul.hari)
+        jamJadwal.forEach(time => {
+          if((convertTimetoInt(matkul, 0) > convertTimetoInt({jam: time}, 0)) &&
+          (convertTimetoInt(matkul, 0) < convertTimetoInt({jam: time}, 1))){
+            if(!Array.isArray(fixJadwal[hari.indexOf(matkul.hari)])){
+              fixJadwal[hari.indexOf(matkul.hari)] = []
+            }
+            if(!Array.isArray(fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)])){
+              fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)] = []
+            }
+            fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)] = 
+            [...fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)], matkul]
+          }
+        })
+      } 
+      if(!end){
+        // console.log("jam akhir " +matkul.jam + " " + matkul.hari)
+        jamJadwal.forEach(time => {
+          if((convertTimetoInt(matkul, 1) > convertTimetoInt({jam: time}, 0)) &&
+          (convertTimetoInt(matkul, 1) < convertTimetoInt({jam: time}, 1))){
+            if(!Array.isArray(fixJadwal[hari.indexOf(matkul.hari)])){
+              fixJadwal[hari.indexOf(matkul.hari)] = []
+            }
+            if(!Array.isArray(fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)])){
+              fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)] = []
+            }
+            fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)] = 
+            [...fixJadwal[hari.indexOf(matkul.hari)][jamJadwal.indexOf(time)], matkul]
+          }
+        })
+      }
+    })
+    if(!isJumat && fixJadwal.length > 4) fixJadwal.pop();
+    if(!isJumat && fixJadwal.length < 5){
+      fixJadwal.forEach(jadwal => {
+        if(!jadwal) jadwal = {}
+      })
+    }
+    return (isJumat? (fixJadwal[4] ? fixJadwal[4] : [{}]) : fixJadwal);
+  }
+
+  const createJamJadwal = (mkElminates = [], isJumat = false) => {
+    let listDeltaTime = [], deltaTime = 0;
+    mkElminates.fixJadwal.forEach(matkul => {
+      // if(isJumat? matkul.hari == "Jum'at" : matkul.hari != "Jum'at"){
+        const deltaTimeAkumulasi = (convertTimetoInt(matkul, 1) - convertTimetoInt(matkul, 0))
+        const isNine = (deltaTimeAkumulasi.toString().substring(0, deltaTimeAkumulasi.toString().length).indexOf("9") > 0) ? 1 : 0
+        let tempDeltaTime = 0;
+        if((deltaTimeAkumulasi + isNine) % 4 == 0){
+          tempDeltaTime = (deltaTimeAkumulasi+isNine) / 4;
+        }else if((deltaTimeAkumulasi + isNine) % 3 == 0){
+          tempDeltaTime = (deltaTimeAkumulasi+isNine) / 3;
+        }else if((deltaTimeAkumulasi + isNine) % 2 == 0){
+          tempDeltaTime = (deltaTimeAkumulasi+isNine) / 2;
+        }else{
+          tempDeltaTime = deltaTimeAkumulasi+isNine;
+        }
+
+        if(listDeltaTime.length > 0){
+          let find = listDeltaTime.filter(dT => {
+            if(dT[0] == tempDeltaTime){
+              return dT;
+            }
+          });
+          if(!find || find.length == 0) listDeltaTime.push([tempDeltaTime, 1]);
+          else listDeltaTime[listDeltaTime.indexOf(find[0])] = [find[0][0], find[0][1]+1]
+        }else{
+          listDeltaTime.push([tempDeltaTime, 1])
+        }
+      // }
+    })
+    // console.log(listDeltaTime)
+    let maxDt = 0, indexDeltaTime = -1;
+    listDeltaTime.forEach(dT => {
+      if(maxDt == 0 || maxDt < dT[1]) {
+        maxDt = dT[1]
+        indexDeltaTime = listDeltaTime.indexOf(dT)
+      }
+    })
+    deltaTime = listDeltaTime[indexDeltaTime][0]
+    
+    let jamJadwal = [];
+    let lowTime = -1;
+    // let middleTime = -1;
+    let lastTime = -1;
+    mk.forEach(matkul => {
+      // if(isJumat? matkul.hari == "Jum'at" : matkul.hari != "Jum'at"){
+        if(lowTime < 0 || convertTimetoInt(matkul, 0) < lowTime) lowTime = convertTimetoInt(matkul, 0);
+        if(lastTime < 0 || convertTimetoInt(matkul, 1) > lastTime) lastTime = convertTimetoInt(matkul, 1);
+      // }
+    })
+    // let deltaTimeMiddle = -1;
+    // mk.forEach(matkul => {
+    //   if((isJumat? matkul.hari == "Jum'at" : matkul.hari != "Jum'at") && !Number.isInteger((convertTimetoInt(matkul, 0) - lowTime) / deltaTime)){
+    //     if((convertTimetoInt(matkul, 0) - lowTime / deltaTime) < middleTime || middleTime < 0) middleTime = convertTimetoInt(matkul, 0)
+    //     if(deltaTimeMiddle < 0) {
+    //       deltaTimeMiddle = convertTimetoInt(matkul, 1) - convertTimetoInt(matkul, 0);
+    //       if(deltaTimeMiddle.toString().indexOf("9")) {
+    //         deltaTimeMiddle += 1;
+    //       }
+    //       if(deltaTimeMiddle % 2 == 0) {
+    //         deltaTimeMiddle /= 2;
+    //       }else if(deltaTimeMiddle % 3 == 0){
+    //         deltaTimeMiddle /= 3;
+    //       }
+    //     }else{
+    //       let timeAkumulasiMiddle = convertTimetoInt(matkul, 1) - convertTimetoInt(matkul, 0);
+    //       if(((timeAkumulasiMiddle.toString().indexOf("9") > 0 ? timeAkumulasiMiddle+1 : timeAkumulasiMiddle) % 3 == 0) && (deltaTimeMiddle * 2 == timeAkumulasiMiddle)){
+    //         deltaTimeMiddle = (deltaTimeMiddle == timeAkumulasiMiddle/3 ? 0 : timeAkumulasiMiddle/3)
+    //       }
+    //     }
+    //   }
+    // });
+    let jam = lowTime;
+    while(jam < lastTime){
+      if(jamJadwal.length > 0){
+        jamJadwal[jamJadwal.length-1] = jamJadwal[jamJadwal.length-1] + "-"+ ('0'+Math.floor(jam % 60 == 0 ? jam/60 - 1 : jam/60)).slice(-2)+":"+(('0'+(jam % 60 == 0 ? '59' : jam % 60 - 1)).slice(-2))
+      }
+      if(jam+deltaTime < lastTime) jamJadwal.push(('0'+Math.floor(jam/60)).slice(-2)+":"+(('0'+jam % 60).slice(-2)))
+      jam+=deltaTime
+    }
+    // jam = middleTime
+    // let bts = 0;
+    // while(jam < lastTime){
+    //   if(bts > 0){
+    //     if(jam+deltaTimeMiddle >= lastTime) jamJadwal[jamJadwal.length-1] = jamJadwal[jamJadwal.length-1] + "-" + ('0'+Math.floor(lastTime/60)).slice(-2)+":"+(('0'+lastTime % 60).slice(-2))
+    //     else jamJadwal[jamJadwal.length-1] = jamJadwal[jamJadwal.length-1] + "-" + ('0'+Math.floor(jam % 60 == 0 ? jam/60 - 1 : jam/60)).slice(-2)+":"+(('0'+(jam % 60 == 0 ? '59' : jam % 60 - 1)).slice(-2))
+    //   }
+    //   if(jam+deltaTimeMiddle < lastTime) jamJadwal.push(('0'+Math.floor(jam/60)).slice(-2)+":"+(('0'+jam % 60).slice(-2)))
+    //   jam+=deltaTimeMiddle
+    //   bts++;
+    // }
+
+    return jamJadwal;
+  }
+
   const createJadwal = () => {
     const hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at"];
     let mkArray = [...mk];
@@ -347,54 +477,30 @@ function Table() {
     }while(getSimilarMkFromJadwal(mkArray));
     console.log([...mkArray])
     const days = getDaysFromJadwal(mkArray);
-    const mkElminates = eliminateMk(days, mkArray, mkSpliced);
+    const mkElminates = eliminateMk(days, mkArray, mkSpliced, hari);
 
     console.log("hasil")
     console.log(mkElminates.fixJadwal)
     console.log("=====================================")
+    
+    let fixJadwal = [];
 
-    let deltaTime = 0;
-    // console.log(((convertTimetoInt(mkElminates.fixJadwal[0], 1) - convertTimetoInt(mkElminates.fixJadwal[0], 0))+1) % 2 == 0)
-    if(((convertTimetoInt(mkElminates.fixJadwal[0], 1) - convertTimetoInt(mkElminates.fixJadwal[0], 0))+1) % 2 == 0){
-      deltaTime = ((convertTimetoInt(mkElminates.fixJadwal[0], 1) - convertTimetoInt(mkElminates.fixJadwal[0], 0))+1) / 2;
-      let lowTime = -1;
-      let middleTime = -1;
-      mkElminates.fixJadwal.forEach(matkul => {
-        // const time = matkul.jam.split("-")[0].split((matkul.jam.split("-")[0].indexOf(":")) > 0 ? ":" : "." )[0];
-        if(lowTime < 0 || convertTimetoInt(matkul, 0) < lowTime) lowTime = convertTimetoInt(matkul, 0);
-      });
-      mkElminates.fixJadwal.forEach(matkul => {
-        console.log(matkul.jam+ " " + convertTimetoInt(matkul, 0)+ " " + (convertTimetoInt(matkul, 0) - lowTime ))
-        console.log(convertTimetoInt(matkul, 0) - lowTime / deltaTime)
-        // if(matkul.hari != "Jum'at" && !Number.isInteger(convertTimetoInt(matkul, 0) - lowTime / deltaTime)){
-        //   if((convertTimetoInt(matkul, 0) - lowTime / deltaTime) < middleTime || middleTime < 0) middleTime = convertTimetoInt(matkul, 0)
-        // }
-      });
-      console.log(lowTime/60 + " " + lowTime%60);
-      console.log(Math.floor(middleTime/60) + " " + middleTime%60);
-      // console.log(lowTime/60 + lowTime%60);
+    let jamJadwal = createJamJadwal(mkElminates)
+    console.log(jamJadwal)
+    fixJadwal = [...inputToTimeJadwal(mkElminates, jamJadwal, hari, false)]
+    fixJadwal = [...fixJadwal, inputToTimeJadwal(mkElminates, jamJadwal, hari, true)]
 
-      // let jam = [];
-      // hari.forEach(day => {
-      //   const mkByDay = getMKperDaysFromJadwal(mkElminates.fixJadwal, day);
-      //   for (let i = 0; i < mkByDay.length; i++) {
-      //     let jamAwal = mkByDay[i].jam.split("-")[0];
-      //     let jamAkhir = mkByDay[i].jam.split("-")[1];
-      //     console.log(jamAwal + " " + jamAkhir)
-      //     // if(((convertTimetoInt(mkByDay[i], 1) - convertTimetoInt(mkByDay[i], 0))+1) % deltaTime == 0){
-      //       jamAwal = (convertTimetoInt(mkByDay[i], 0) - lowTime)/deltaTime ;
-      //       jamAkhir = (convertTimetoInt(mkByDay[i], 1) - lowTime);
-      //       if(mkByDay[i].jam.indexOf("9") >= 0) jamAkhir = (jamAkhir + 1)/deltaTime ;
-      //       else jamAkhir /= deltaTime;
-      //     // }
-      //     // console.log(mkByDay[i].jam.indexOf("9"))
-      //     console.log(jamAwal + " " + jamAkhir)
-      //     console.log("jamAwal + jamAkhir")
-      //     jam.push(mkByDay[i].jam)
-      //   }
-      // })
-      // console.log(jam)
-    }
+    fixJadwal.forEach(jadwal => {
+      if(Array.isArray(jadwal)){
+        for (let i = 0; i < jamJadwal.length; i++) {
+          if(!jadwal[i]) jadwal[i] = {}
+        }
+      }
+    })
+    console.log(fixJadwal)
+    // setData([...fixJadwal])
+      
+    // console.log(fixJadwal)
     // console.log(mkArray)
     // console.log(mkElminates.mkSpliced)
   }
@@ -416,17 +522,8 @@ function Table() {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
         </tbody>
       </table>
-      {data && (<p>{data}</p>)}
       <button onClick={() => createJadwal()}>get data</button>
     </div>
   )
