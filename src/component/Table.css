@@ -1,0 +1,61 @@
+.top {
+    display: flex;
+}
+.top .btn-gen{
+    margin: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: white;
+    font-size: 20px;
+}
+.top .btn-gen:hover{
+    border: 1px solid white;
+    padding: 7.5px 25px;
+    border-radius: 20px;
+}
+.tabel table.mainTable {
+    padding: 10px 0;
+    top: 200px;
+    width: 90%;
+    margin: auto;
+    position: relative;
+    color: white;
+    padding-bottom: 50px;
+}
+table thead tr:first-child th{
+    border-radius: 25px 25px 0 0;
+    padding: 10px 0;
+}
+table thead tr:nth-child(2n-1){
+    background-color: #1C315E;
+}
+table thead tr:nth-child(2n){
+    background-color: #FD841F;
+}
+
+table tr td, table thead tr:nth-child(2) th{
+    text-align: center;
+    padding: 5px;
+    color: black;
+}
+table thead tr:nth-child(2) th{
+    color: white;
+}
+table tr:nth-child(2n-1) td,
+table.mainTable tr:nth-child(2n-1) td table.secondTable td{
+    background-color: white;
+    color: black;
+}
+table tr:nth-child(2n) td,
+table.mainTable tr:nth-child(2n) td table.secondTable td{
+    background-color: lightgrey;
+    color: black;
+}
+table.mainTable tr td:first-child{
+    background-color: #1C315E;
+    color: white;
+}
+table.mainTable td table.secondTable{
+    margin: auto;
+}

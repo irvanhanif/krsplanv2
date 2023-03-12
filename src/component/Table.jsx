@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
 import cookie from 'universal-cookie'
+import './Table.css'
 
 function Table() {
   const [mk, setMk] = useState([]);
@@ -8,7 +9,6 @@ function Table() {
 
   useEffect(() => {
     setMk(JSON.parse(atob(Cookies.get('data'))));
-    // console.log(atob(Cookies.get('data')))
   }, []);
 
   const convertTimetoInt = (time, i) => {
@@ -180,7 +180,7 @@ function Table() {
             if(spliced[i].kode == mkSplice.kode && spliced[i].kelas == mkSplice.kelas &&
               (spliced[i].jam != mkSplice.jam || spliced[i].hari != mkSplice.hari)){
               const mkSpliced = getMKperDaysFromJadwal(jadwal, spliced[i].hari);
-              console.log(mkSpliced)
+
               for (let j = 0; j < mkSpliced.length-1; j++) {
                 if(
                   ((convertTimetoInt(spliced[i], 0) <= convertTimetoInt(mkSpliced[j], 1)) &&
@@ -191,40 +191,36 @@ function Table() {
               }
             }  
           }
-          // if(canAdd) console.log("nemu")
         }
       }
       return canAdd;      
     }
 
-    // console.log([...splice])
     let batas = 5;
     do{
-    splice.forEach(mkSplice => {
-      // console.log(cekKodeInJadwal(jadwal, mkSplice) + " " + mkSplice.kode + " " + mkSplice.kelas+  " " + cekCanAddToJadwal(jadwal, mkSplice))
-      if(cekKodeInJadwal(jadwal, mkSplice) && cekCanAddToJadwal(jadwal, mkSplice, splice)){
-        let spliceSimMk = []
-        if(cekKelasInJadwal(splice, mkSplice)){
-          for (let i = 0; i < splice.length; i++) {
-            if(splice[i].kode == mkSplice.kode && splice[i].kelas == mkSplice.kelas){
-              spliceSimMk = [...spliceSimMk, splice[i]];
-            }  
+      if(batas <= 0) break;
+      splice.forEach(mkSplice => {
+        if(cekKodeInJadwal(jadwal, mkSplice) && cekCanAddToJadwal(jadwal, mkSplice, splice)){
+          let spliceSimMk = []
+          if(cekKelasInJadwal(splice, mkSplice)){
+            for (let i = 0; i < splice.length; i++) {
+              if(splice[i].kode == mkSplice.kode && splice[i].kelas == mkSplice.kelas){
+                spliceSimMk = [...spliceSimMk, splice[i]];
+              }  
+            }
           }
-        }
-        console.log("mkSplice ada")
-        console.log(spliceSimMk)
-        if(spliceSimMk.length > 0){
-          jadwal = [...jadwal, ...spliceSimMk]
+          if(spliceSimMk.length > 0){
+            jadwal = [...jadwal, ...spliceSimMk]
+          }else{
+            jadwal = [...jadwal, mkSplice]
+          }
+          changeJadwal = true;
         }else{
-          jadwal = [...jadwal, mkSplice]
+          splice.splice(splice.indexOf(mkSplice), 1);
         }
-        changeJadwal = true;
-      }else{
-        splice.splice(splice.indexOf(mkSplice), 1);
-      }
-    })
-    batas--;
-    }while(splice.length > 0 && batas > 0);
+      })
+      batas--;
+    }while(splice.length > 0);
     return [changeJadwal, [...jadwal], [...splice]]
   }
 
@@ -244,8 +240,6 @@ function Table() {
     let simJadwal = [];
     let resultCanAdd = false;
     let fixJadwal;
-    let loop = 5;
-    do{
     fixJadwal = [];
 
     days.forEach(day => {
@@ -317,17 +311,11 @@ function Table() {
       }
       fixJadwal = [...fixJadwal, ...matkul]
     })
-    console.log([...mkArray])
     resultCanAdd = addMKSpliceToJadwal([...fixJadwal], [...mkSpliced]);
-    mkArray = [...resultCanAdd[1]];
     mkSpliced = [...resultCanAdd[2]];
-    simJadwal = [];
-    if(loop == 0){
-      break;
+    if(resultCanAdd[0]){
+      mkArray = [...resultCanAdd[1]];
     }
-    loop--;
-    console.log("===================loop=========================")
-    }while(resultCanAdd[0]);
     return {
       fixJadwal: [...fixJadwal],
       mkArray: [...mkArray],
@@ -336,6 +324,9 @@ function Table() {
 
   const inputToTimeJadwal = (mkElminates = [], jamJadwal = [], hari = [], isJumat = false) => {
     let fixJadwal = [];
+    for (let i = 0; i < 4; i++) {
+      fixJadwal[i] = []
+    }
     mkElminates.fixJadwal.forEach(matkul => {
       let start = false, end = false;
       if(isJumat ? matkul.hari == "Jum'at" : matkul.hari != "Jum'at")
@@ -396,13 +387,6 @@ function Table() {
     })
     if(!isJumat && fixJadwal.length > 4) fixJadwal.pop();
     if(!isJumat && fixJadwal.length < 5){
-      if(fixJadwal.length != 4){
-        for (let i = 0; i < 4; i++) {
-          if(!fixJadwal[i]){
-            fixJadwal[i] = []
-          }
-        }
-      }
       fixJadwal.forEach(jadwal => {
         if(!jadwal) jadwal = {}
       })
@@ -471,19 +455,16 @@ function Table() {
     const hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at"];
     let mkArray = [...mk];
     let mkSpliced = [];
+
     do{
       let filterSimilar = spliceMkBySimilarKode(mkArray);
       mkArray = [...filterSimilar[0]];
       mkSpliced = [...mkSpliced, ...filterSimilar[1]];
     }while(getSimilarMkFromJadwal(mkArray));
-    // console.log([...mkArray])
+    
     const days = getDaysFromJadwal(mkArray);
     const mkElminates = eliminateMk(days, mkArray, mkSpliced, hari);
 
-    console.log("hasil")
-    console.log(mkElminates.fixJadwal)
-    console.log("=====================================")
-    // /*
     let fixJadwal = [];
     let jamJadwal = createJamJadwal(mkElminates)
     fixJadwal = [...inputToTimeJadwal(mkElminates, jamJadwal, hari, false)]
@@ -494,9 +475,10 @@ function Table() {
         for (let i = 0; i < jamJadwal.length; i++) {
           if(!jadwal[i]) jadwal[i] = {}
         }
+      }else if(!jadwal || jadwal == undefined){
+        jadwal = {}
       }
     })
-    
     for (let j = 0; j < jamJadwal.length; j++) {
       for (let i = 0; i < fixJadwal.length; i++) {
         if(Array.isArray(jamJadwal[j])) jamJadwal[j] = [...jamJadwal[j], fixJadwal[i][j]];
@@ -504,14 +486,15 @@ function Table() {
       }
     }
     
-    console.log(jamJadwal)
     setData([...jamJadwal])
-      // */
   }
 
   return (
     <div className='tabel'>
-      <table border={1} style={{borderSpacing: 0}}>
+      <div className="top">
+        <button className='btn-gen' onClick={() => createJadwal()}>Generate Your Plan KRS</button>
+      </div>
+      <table className='mainTable' style={{borderSpacing: 0}}>
         <thead>
           <tr>
             <th colSpan={6}>Jadwal Rekomendasi</th>
@@ -532,7 +515,7 @@ function Table() {
                   {
                     jam.map((jadwal, idx) => (
                       <td key={idx}>{idx == 0? jadwal : (Array.isArray(jadwal)? (
-                        <table><tbody>
+                        <table className='secondTable'><tbody>
                         <tr>
                         {jadwal.map((arrayJadwal, i) => (
                             <td key={i}>{arrayJadwal.kode + " " + arrayJadwal.kelas}</td>
@@ -547,7 +530,6 @@ function Table() {
           }
         </tbody>
       </table>
-      <button onClick={() => createJadwal()}>get data</button>
     </div>
   )
 }
