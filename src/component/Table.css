@@ -68,3 +68,19 @@ table.mainTable tr td.sks{
     background-color: #FD841F;
     color: white;
 }
+@media screen and (max-width: 750px) {
+    .tabel{
+        font-size: 14px;
+    }
+    table.mainTable tr td{
+        font-size: 12px;
+    }
+}
+@media screen and (max-width: 590px) {
+    .tabel table.mainTable{
+        width: 100%;
+    }
+    table.mainTable tbody tr td:first-child{
+        max-width: 70px;
+    }
+}

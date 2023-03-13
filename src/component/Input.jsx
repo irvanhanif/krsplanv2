@@ -79,58 +79,66 @@ function Input() {
       <div className="top"></div>
       <div className="data-input">
         <form onSubmit={isEdit? saveMk : addMk} className='form-add-mk' >
-          <div className="control">
-            <label className="label">Hari</label>
-            <select
-            value={hari}
-            onChange={(e) => setHari(e.target.value)}>
-              <option value="Senin">Senin</option>
-              <option value="Selasa">Selasa</option>
-              <option value="Rabu">Rabu</option>
-              <option value="Kamis">Kamis</option>
-              <option value="Jum'at">Jum'at</option>
-              <option value="Sabtu">Sabtu</option>
-              <option value="Minggu">Minggu</option>
-            </select>
-          </div>
-          <div className="control">
-            <label className="label">Jam</label>
-            <input type="text" maxLength={'11'} className="jamMK" 
-            placeholder='04:00-07:00'
-            onChange={(e) => setJam(e.target.value)}
-            value={jam}
-            required
-            />
-          </div>
-          <div className="control">
-            <label className="label">Kelas</label>
-            <input type="text" maxLength={'15'} className="kelasMK"
-            placeholder='B' 
-            onChange={(e) => setKelas(e.target.value)}
-            value={kelas}
-            required
-            />
-          </div>
-          <div className="control">
-            <label className="label">Kode</label>
-            <input type="text" maxLength={'10'} className="kodeMK" 
-            placeholder='UBU80003'
-            onChange={(e) => setKode(e.target.value)}
-            value={kode}
-            required
-            />
-          </div>
-          <div className="control">
-            <label className="label">SKS</label>
-            <input type="number" max={7} maxLength={1} className="sksMK" 
-            placeholder='3'
-            onChange={(e) => setSks(e.target.value)}
-            value={sks}
-            required
-            />
-          </div>
-          <div className="control">
-            <button type='submit'>{isEdit? 'Simpan' : 'Tambah'} Mata Kuliah</button>
+          <div className="input-form">
+            {/* <div className="top-form"> */}
+              <div className="control">
+                <label className="label">Hari</label>
+                <select
+                value={hari}
+                onChange={(e) => setHari(e.target.value)}>
+                  <option value="Senin">Senin</option>
+                  <option value="Selasa">Selasa</option>
+                  <option value="Rabu">Rabu</option>
+                  <option value="Kamis">Kamis</option>
+                  <option value="Jum'at">Jum'at</option>
+                  <option value="Sabtu">Sabtu</option>
+                  <option value="Minggu">Minggu</option>
+                </select>
+              </div>
+              <div className="control">
+                <label className="label">Jam</label>
+                <input type="text" maxLength={'11'} className="jamMK" 
+                placeholder='04:00-07:00'
+                onChange={(e) => setJam(e.target.value)}
+                value={jam}
+                required
+                />
+              </div>
+            {/* </div> */}
+            {/* <div className="bottom-form"> */}
+              <div className="control">
+                <label className="label">Kelas</label>
+                <input type="text" maxLength={'15'} className="kelasMK"
+                placeholder='B' 
+                onChange={(e) => setKelas(e.target.value)}
+                value={kelas}
+                required
+                />
+              </div>
+              <div className="control">
+                <label className="label">Kode</label>
+                <input type="text" maxLength={'10'} className="kodeMK" 
+                placeholder='UBU80003'
+                onChange={(e) => setKode(e.target.value)}
+                value={kode}
+                required
+                />
+              </div>
+              <div className="control">
+                <label className="label">SKS</label>
+                <input type="number" max={7} maxLength={1} className="sksMK" 
+                placeholder='3'
+                onChange={(e) => setSks(e.target.value)}
+                value={sks}
+                required
+                />
+              </div>
+            </div>
+          {/* </div> */}
+          <div className="btn-add-save">
+            <div className="control">
+              <button type='submit'>{isEdit? 'Simpan' : 'Tambah'} Mata Kuliah</button>
+            </div>
           </div>
         </form>
         <table className="data-mk">

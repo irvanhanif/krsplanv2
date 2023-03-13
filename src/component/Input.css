@@ -14,13 +14,15 @@
 .form-add-mk{
     display: flex;
     margin: auto;
-    justify-content: space-between;
     font-size: 18px;
     color: white;
     background-color: #FD841F;
     padding: 10px 20px;
     border-radius: 20px;
-    gap: 0 20px;
+    justify-content: space-evenly;
+}
+.form-add-mk .input-form{
+    display: flex;
 }
 .label{
     padding: 5px 0;
@@ -30,7 +32,7 @@
 }
 .control{
     display: flex;
-    gap: 0 5px;
+    padding: 0 5px;
 }
 .control input, .control select{
     background: rgba(255, 255, 255, 0.25);
@@ -136,4 +138,48 @@ table tr:nth-child(2n) button{
 }
 *{
     scroll-behavior: smooth;
+}
+@media screen and (max-width: 1080px) {
+    .form-add-mk .input-form{
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .form-add-mk .input-form .control{
+        padding: 5px 2.5px;
+    }
+    .form-add-mk .btn-add-save{
+        justify-content: center;
+        align-items: center;
+        display: flex;
+    }
+    .gen-btn{
+        margin-top: 20px;
+    }
+}
+@media screen and (max-width: 700px) {
+    .data-input, .form-add-mk, table button, .control button, .control input, .control select{
+        font-size: 12px;
+    }
+    table td{
+        font-size: 12px;
+    }
+    table button{
+        padding: 5px 10px;
+    }
+    .generate-btn{
+        font-size: 16px;
+    }
+    .data-input{
+        width: 100%;
+    }
+    .data-mk td{
+        padding: 5px;
+    }
+    .form-add-mk{
+        display: block;
+    }
+    .form-add-mk .btn-add-save{
+        padding-top: 5px;
+    }
 }
