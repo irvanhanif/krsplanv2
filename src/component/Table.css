@@ -23,31 +23,31 @@
     color: white;
     padding-bottom: 50px;
 }
-table thead tr:first-child th{
+table.mainTable thead tr:first-child th{
     border-radius: 25px 25px 0 0;
     padding: 10px 0;
 }
-table thead tr:nth-child(2n-1){
+table.mainTable thead tr:nth-child(2n-1){
     background-color: #1C315E;
 }
-table thead tr:nth-child(2n){
+table.mainTable thead tr:nth-child(2n){
     background-color: #FD841F;
 }
 
-table tr td, table thead tr:nth-child(2) th{
+table.mainTable tr td, table thead tr:nth-child(2) th{
     text-align: center;
     padding: 5px;
     color: black;
 }
-table thead tr:nth-child(2) th{
+table.mainTable thead tr:nth-child(2) th{
     color: white;
 }
-table tr:nth-child(2n-1) td,
+table.mainTable tr:nth-child(2n-1) td,
 table.mainTable tr:nth-child(2n-1) td table.secondTable td{
     background-color: white;
     color: black;
 }
-table tr:nth-child(2n) td,
+table.mainTable tr:nth-child(2n) td,
 table.mainTable tr:nth-child(2n) td table.secondTable td{
     background-color: lightgrey;
     color: black;
@@ -58,4 +58,13 @@ table.mainTable tr td:first-child{
 }
 table.mainTable td table.secondTable{
     margin: auto;
+}
+table.mainTable tr td.totalSks{
+    background-color: #1C315E;
+    color: white;
+    border-radius: 0 0 0;
+}
+table.mainTable tr td.sks{
+    background-color: #FD841F;
+    color: white;
 }

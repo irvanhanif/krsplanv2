@@ -9,6 +9,7 @@ function Input() {
     const [jam, setJam] = useState('');
     const [kelas, setKelas] = useState('');
     const [kode, setKode] = useState('');
+    const [sks, setSks] = useState(0);
     const [isEdit, setIsEdit] = useState(false);
     const [id, setId] = useState(0);
     const Cookies = new cookie();
@@ -26,7 +27,8 @@ function Input() {
           hari: hari,
           jam: jam,
           kelas: kelas,
-          kode: kode
+          kode: kode,
+          sks: sks,
         }
         setMk([...mk, matKul]);
         setHari('Senin');
@@ -40,8 +42,10 @@ function Input() {
         setJam(mk[id].jam);
         setKelas(mk[id].kelas);
         setKode(mk[id].kode);
+        setSks(mk[id].sks);
         setIsEdit(true);
         setId(id);
+        window.scrollTo(0, 0)
       }
     
       const saveMk = (e) => {
@@ -50,11 +54,13 @@ function Input() {
         mk[id].jam = jam;
         mk[id].kelas = kelas;
         mk[id].kode = kode;
+        mk[id].sks = sks;
         setMk(mk);
         setHari('Senin');
         setJam('');
         setKelas('');
         setKode('');
+        setSks(0);
         setIsEdit(false)
       }
     
@@ -93,6 +99,7 @@ function Input() {
             placeholder='04:00-07:00'
             onChange={(e) => setJam(e.target.value)}
             value={jam}
+            required
             />
           </div>
           <div className="control">
@@ -101,6 +108,7 @@ function Input() {
             placeholder='B' 
             onChange={(e) => setKelas(e.target.value)}
             value={kelas}
+            required
             />
           </div>
           <div className="control">
@@ -109,6 +117,16 @@ function Input() {
             placeholder='UBU80003'
             onChange={(e) => setKode(e.target.value)}
             value={kode}
+            required
+            />
+          </div>
+          <div className="control">
+            <label className="label">SKS</label>
+            <input type="number" max={7} maxLength={1} className="sksMK" 
+            placeholder='3'
+            onChange={(e) => setSks(e.target.value)}
+            value={sks}
+            required
             />
           </div>
           <div className="control">
@@ -122,6 +140,7 @@ function Input() {
               <th>Jam</th>
               <th>Kelas</th>
               <th>Kode</th>
+              <th>sks</th>
               <th>Aksi</th>
             </tr>
           </thead>
@@ -132,6 +151,7 @@ function Input() {
               <td>{cell.jam}</td>
               <td>{cell.kelas}</td>
               <td>{cell.kode}</td>
+              <td>{cell.sks}</td>
               <td>
                 <button onClick={() => editMk(index)}>Edit</button>
                 <button onClick={() => deleteMk(index)}>Delete</button>

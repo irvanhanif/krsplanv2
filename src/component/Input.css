@@ -2,7 +2,7 @@
     position: relative;
     margin: auto;
     margin-top: 170px;
-    width: 85%;
+    width: 90%;
 }
 .top{
     position: absolute;
@@ -24,6 +24,9 @@
 }
 .label{
     padding: 5px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .control{
     display: flex;
@@ -113,4 +116,24 @@ table tr:nth-child(2n) button{
     font-weight: bold;
     padding: 4px 20px;
     border: 1px solid #1C315E;
+}
+.control input.sksMK,
+.control input.kelasMK{
+    width: 50px;
+}
+.control input.sksMK::placeholder,
+.control input.kelasMK::placeholder{
+    text-align: center;
+    text-indent: 0;
+}
+.control input.sksMK::-webkit-outer-spin-button,
+.control input.sksMK::-webkit-inner-spin-button{
+    -webkit-appearance: none;
+    margin: 0;
+}
+.control input.sksMK{
+    -moz-appearance: textfield;
+}
+*{
+    scroll-behavior: smooth;
 }
