@@ -1,15 +1,23 @@
-import React, {useState, useEffect} from 'react'
-import cookie from 'universal-cookie'
-import './Table.css'
+import React, {useState, useEffect} from 'react';
+import {useNavigate} from 'react-router-dom';
+import cookie from 'universal-cookie';
+import './Table.css';
+import swal from 'sweetalert';
 
 function Table() {
   const [mk, setMk] = useState([]);
   const [data, setData] = useState([]);
   const [sks, setSks] = useState(0);
+  const [mainSks, setMainSks] = useState(0);
   const Cookies = new cookie();
-
+  const navigate = useNavigate();
+  
   useEffect(() => {
-    setMk(JSON.parse(atob(Cookies.get('data'))));
+    if(Cookies.get('dataKRS')) setMk(JSON.parse(atob(Cookies.get('dataKRS'))));
+    if(Cookies.get('yourPlanKRS')) {
+      setData(JSON.parse(atob(Cookies.get('yourPlanKRS')))[0])
+      setSks(JSON.parse(atob(Cookies.get('yourPlanKRS')))[1])
+    };
   }, []);
 
   const convertTimetoInt = (time, i) => {
@@ -311,9 +319,9 @@ function Table() {
     })
     resultCanAdd = addMKSpliceToJadwal([...fixJadwal], [...mkSpliced]);
     mkSpliced = [...resultCanAdd[2]];
-    if(resultCanAdd[0]){
-      mkArray = [...resultCanAdd[1]];
-    }
+    // if(resultCanAdd[0]){
+    mkArray = [...resultCanAdd[1]];
+    // }
     return {
       fixJadwal: [...fixJadwal],
       mkArray: [...mkArray],
@@ -507,13 +515,61 @@ function Table() {
     }
     setSks(tempSks);
     setData([...jamJadwal]);
+    Cookies.set('yourPlanKRS', btoa(JSON.stringify([[...jamJadwal], tempSks])), {path: '/'});
     document.getElementsByClassName("mainTable")[0].scrollIntoView();
+    return tempSks;
+  }
+
+  const generator = () => {
+    if([...mk].length > 0){
+      if(mainSks > 0){
+        let loop = [...mk].length * 10, tempSks = 0, found = true;
+        do{
+          tempSks = createJadwal();
+          if(loop == 0){
+            setData([])
+            setSks(0)
+            tempSks = mainSks;
+            found = false;
+          }
+          loop--;
+        }while(tempSks != mainSks);
+        if(!found){
+          swal("Sorry!", "Tidak ada jadwal yang sesuai sks kamu inginkan", "error");
+        }
+      }else{
+        createJadwal();
+      }
+    }else{
+      swal("Sorry!", "Kamu belum mengisikan data jadwal krs", "error");
+      navigate("/data");
+    }
   }
 
   return (
     <div className='tabel'>
       <div className="top">
-        <button className='btn-gen' onClick={() => createJadwal()}>Generate Your Plan KRS</button>
+        <button className='btn-gen' onClick={() => generator()}>Generate Your Plan KRS</button>
+        <div className="field">
+          <label className="label">Total SKS</label>
+          <div className="setSks">
+            <input type="number"
+            placeholder='20'
+            title='Total sks yang kamu inginkan'
+            className='mainSks'
+            value={mainSks}
+            onChange={(e) => setMainSks(e.target.value)}
+            onInput={(e) => {
+              if(e.target.value.length > 2){
+                e.target.value = e.target.value.slice(0, 2)
+              }else if(e.target.value > 24){
+                e.target.value = 24
+              }
+            }} 
+            min={0} max={24} required />
+            <button type="reset" onClick={() => setMainSks(0)}>Reset</button>
+          </div>
+        </div>
       </div>
       <table className='mainTable' style={{borderSpacing: 0}}>
         <thead>
@@ -531,7 +587,7 @@ function Table() {
         </thead>
         <tbody>
           {
-            data.map((jam, index) => (
+            data.length > 0 ? data.map((jam, index) => (
                 <tr key={index}>
                   {
                     jam.map((jadwal, idx) => (
@@ -547,7 +603,7 @@ function Table() {
                     ))
                   }
                 </tr>
-            ))
+            )) : null
           }
           <tr>
             <td></td>

@@ -2,6 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import "./Input.css";
 import cookie from "universal-cookie";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import fontawesome from "@fortawesome/fontawesome"
+import {faPenSquare, faTrash} from '@fortawesome/fontawesome-free-solid';
+import Tesseract from 'tesseract.js';
+import swal from 'sweetalert';
+
+fontawesome.library.add(faPenSquare, faTrash)
 
 function Input() {
     const [mk, setMk] = useState([]);
@@ -12,14 +19,76 @@ function Input() {
     const [sks, setSks] = useState(0);
     const [isEdit, setIsEdit] = useState(false);
     const [id, setId] = useState(0);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const [fileUpload, setFileUpload] = useState([]);
+    const [progress, setProgress] = useState(0);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [resultTesseract, setResultTesseract] = useState([]);
+    const [isSuccessSave, setIsSuccessSave] = useState(false);
     const Cookies = new cookie();
 
     useEffect(() => {
-      if(Cookies.get('data')){
-        const data = JSON.parse(atob(Cookies.get('data')));
+      if(Cookies.get('dataKRS')){
+        const data = JSON.parse(atob(Cookies.get('dataKRS')));
         setMk(data);
       }
+      const handleWindowResize = () => {
+        setWindowWidth(window.innerWidth);
+      }
+    
+      window.addEventListener('resize', handleWindowResize);
+    
+      return () => {
+        window.removeEventListener('resize', handleWindowResize);
+      }
     }, [])
+
+    useEffect(() => {
+      let dataOCR = [];
+      resultTesseract.forEach(matkul => {
+        let mkSplit = matkul.split(" ");
+        let sksOCR = 0;
+        if(mkSplit.length > 5)
+        {          
+          for (let i = 0; i < mkSplit.length; i++) {
+            if(mkSplit[i] == "|" || mkSplit[i] == ""
+            || mkSplit[i] == "~") {
+              mkSplit.splice(i, 1);
+            }
+            else if(mkSplit[i].indexOf("|")){
+              mkSplit[i] = mkSplit[i].replace("|", "");
+            }
+            if(i == 0){
+              if(mkSplit[i] == "Jumat" || mkSplit[i] == "Jumiat") 
+              mkSplit[i] = "Jum'at"
+            }
+            if(i == 1) {
+              let pattern = /[01][0-9]:[0-5][0-9]-[01][0-9]:[0-5][0-9]/
+              if(mkSplit[i].match(pattern) == null){
+                mkSplit[i] = mkSplit[i].toString().replaceAll(/[-:]/g, "")
+                mkSplit[i] = mkSplit[i].substring(0, 2) + ":" + mkSplit[i].substring(2, 4) + "-" + mkSplit[i].substring(4, 6) + ":" + mkSplit[i].substring(6, mkSplit[i].length)
+              }
+            }
+            if(i > 3){
+              if(parseInt(mkSplit[i]) != NaN){
+                if(parseInt(mkSplit[i]) <= 7 && mkSplit[i].indexOf("0") < 0){
+                  sksOCR = mkSplit[i];
+                }
+              }
+            }
+          }
+          const matKul = {
+            hari: mkSplit[0],
+            jam: mkSplit[1],
+            kelas: mkSplit[2],
+            kode: mkSplit[3],
+            sks: sksOCR,
+          }
+          dataOCR.push(matKul);
+        }
+      })
+      if(dataOCR.length > 0) setMk([...mk, ...dataOCR]);
+    }, [resultTesseract])
 
     const addMk = (e) => {
         e.preventDefault();
@@ -35,6 +104,7 @@ function Input() {
         setJam('');
         setKelas('');
         setKode('');
+        setKode(0);
       }
     
       const editMk = (id) => {
@@ -70,71 +140,214 @@ function Input() {
         setMk(matkul);
       }
     
-      const generate = () => {
-        Cookies.set('data', btoa(JSON.stringify(mk)), {path: '/'});
+      const saveKRS = () => {
+        for (let i = 0; i < [...mk].length; i++) {
+          if(mk[i].sks == null) {
+            mk[i].sks = 0;
+          }          
+        }
+        Cookies.set('dataKRS', btoa(JSON.stringify(mk)), {path: '/'});
+        setIsSuccessSave(true);
+      }
+
+      const deleteKRS = () => {
+        swal({
+          title: "Kamu yakin?",
+          text: "Penghapusan ini akan permanen, sekali kamu menghapus, itu takkan kembali",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        })
+        .then((willDelete) => {
+          if (willDelete) {
+            swal("Selesai! semua data telah terhapus", {
+              icon: "success",
+            });
+            setMk([])
+            Cookies.set('dataKRS', btoa(JSON.stringify([])), {path: '/'});
+          } else {
+            swal("Datamu masih aman!");
+          }
+        });
+      }
+
+      const IconAksi = (index) => {
+        return  <div>
+                  <button title='Edit' onClick={() => editMk(index)}><FontAwesomeIcon icon="fa-solid fa-pen-square" /></button>
+                  <button title='Delete' onClick={() => deleteMk(index)}><FontAwesomeIcon icon="fa-solid fa-trash" /></button>
+                </div>
+      }
+
+      const TextAksi = (index) => {
+        return  <div>
+                  <button onClick={() => editMk(index)}>Edit</button>
+                  <button onClick={() => deleteMk(index)}>Delete</button>
+                </div>
+      }
+
+      const ocrImage = (image = []) => {
+        const recognizedFile = (index) => {
+          Tesseract.recognize(
+            image[index],
+            'eng',
+            {
+              logger: m => {
+                setProgress(Math.round(m.progress*100))
+              },
+              langPath: "ind.traineddata"
+            }
+          ).then((result) => {
+            setIsSuccess(true);
+            const ocrSplit = result.data.text.split("\n");
+            let jadwalOCR = [];
+            for (let i = 0; i < ocrSplit.length; i++) {
+              if(ocrSplit[i].indexOf("Jumat") >= 0 || ocrSplit[i].indexOf("Jumiat") >= 0 ||
+                ocrSplit[i].indexOf("Jum'at") >= 0 || ocrSplit[i].indexOf("Senin") >= 0 ||
+                ocrSplit[i].indexOf("Selasa") >= 0 || ocrSplit[i].indexOf("Rabu") >= 0 ||
+                ocrSplit[i].indexOf("Kamis") >= 0){
+                  jadwalOCR.push(ocrSplit[i]);
+              }
+            }
+            setResultTesseract(jadwalOCR)
+          })
+        }
+        recognizedFile(0)
+      }
+
+      const allowDrop = (ev) => {
+        ev.preventDefault();
+      }
+
+      const drop = (ev) => {
+        ev.preventDefault();
+        var data = ev.dataTransfer.files;
+        setFileUpload(data)
       }
 
   return (
     <div className='input'>
       <div className="top"></div>
+      {
+        isSuccessSave ? (
+          <div className="alert-box">
+            <div className="alert alert-success">
+              <a className="close" onClick={() => setIsSuccessSave(false)}>&times;</a>
+              <strong>Success!</strong> Jadwal telah disimpan
+            </div>
+          </div>
+        ) : null
+      }
       <div className="data-input">
-        <form onSubmit={isEdit? saveMk : addMk} className='form-add-mk' >
-          <div className="input-form">
-            {/* <div className="top-form"> */}
-              <div className="control">
-                <label className="label">Hari</label>
-                <select
-                value={hari}
-                onChange={(e) => setHari(e.target.value)}>
-                  <option value="Senin">Senin</option>
-                  <option value="Selasa">Selasa</option>
-                  <option value="Rabu">Rabu</option>
-                  <option value="Kamis">Kamis</option>
-                  <option value="Jum'at">Jum'at</option>
-                  <option value="Sabtu">Sabtu</option>
-                  <option value="Minggu">Minggu</option>
-                </select>
-              </div>
-              <div className="control">
-                <label className="label">Jam</label>
-                <input type="text" maxLength={'11'} className="jamMK" 
-                placeholder='04:00-07:00'
-                onChange={(e) => setJam(e.target.value)}
-                value={jam}
-                required
-                />
-              </div>
-            {/* </div> */}
-            {/* <div className="bottom-form"> */}
-              <div className="control">
-                <label className="label">Kelas</label>
-                <input type="text" maxLength={'15'} className="kelasMK"
-                placeholder='B' 
-                onChange={(e) => setKelas(e.target.value)}
-                value={kelas}
-                required
-                />
-              </div>
-              <div className="control">
-                <label className="label">Kode</label>
-                <input type="text" maxLength={'10'} className="kodeMK" 
-                placeholder='UBU80003'
-                onChange={(e) => setKode(e.target.value)}
-                value={kode}
-                required
-                />
-              </div>
-              <div className="control">
-                <label className="label">SKS</label>
-                <input type="number" max={7} maxLength={1} className="sksMK" 
-                placeholder='3'
-                onChange={(e) => setSks(e.target.value)}
-                value={sks}
-                required
-                />
+        <div className="top-button">
+          <button type="button" className="btn btn-primary openModal" data-toggle="modal" data-target="#myModal">
+            Upload File
+          </button>
+          <div className="krs-button">
+            <button type="button" onClick={() => saveKRS()} className="btn btn-primary openModal">
+              Save KRS
+            </button>
+            <button type="button" onClick={() => deleteKRS()} className="btn btn-primary openModal">
+              Delete All KRS
+            </button>
+          </div>
+          <div className="modal fade" id="myModal" role="dialog" aria-hidden='true'>
+            <div className="modal-dialog" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h4 className="modal-title">Modal Header</h4>
+                </div>
+                <div className="modal-body">
+                  <p style={{color: 'red'}}>Warning!! Pengambilan data berdasarkan gambar tidak dapat 100% akurat.</p>
+                  <div className="file-drop-area">
+                    <input id='upload' 
+                    type="file" 
+                    accept='image/*' 
+                    onChange={(e) => setFileUpload(e.target.files)}/>
+                    <label htmlFor='upload' title='Upload disini' onDrop={(e) => {drop(e)}} onDragOver={(e) => allowDrop(e)}>Upload disini</label>
+                  </div>
+                  {
+                    fileUpload.length > 0 ? 
+                    (
+                      <div>
+                        <p style={{margin: '10px 0 5px 0'}}>File yang kamu upload :</p>
+                        <ul>
+                          {
+                            [...fileUpload].map((file, index) => (
+                              <li key={index}>{file.name}</li>
+                            ))
+                          }
+                        </ul>
+                      </div>
+                    )
+                     : null
+                  }
+                </div>
+                <div className="modal-footer">
+                  <div className='progress' style={{background: `linear-gradient(90deg, #24ec7e ${progress}%, #e7e7e7 0%)`, marginRight: (isSuccess? "5px": "auto")}}></div>
+                  {isSuccess? (<p style={{marginRight: 'auto'}}>Success</p>) : null}
+                  <button type="button" className="btn btn-primary" onClick={() => ocrImage([...fileUpload])}>Upload</button>
+                  <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
               </div>
             </div>
-          {/* </div> */}
+          </div>
+        </div>
+        <form onSubmit={isEdit? saveMk : addMk} className='form-add-mk' >
+          <div className="input-form">
+            <div className="control">
+              <label className="label">Hari</label>
+              <select
+              value={hari}
+              onChange={(e) => setHari(e.target.value)}>
+                <option value="Senin">Senin</option>
+                <option value="Selasa">Selasa</option>
+                <option value="Rabu">Rabu</option>
+                <option value="Kamis">Kamis</option>
+                <option value="Jum'at">Jum'at</option>
+                <option value="Sabtu">Sabtu</option>
+                <option value="Minggu">Minggu</option>
+              </select>
+            </div>
+            <div className="control">
+              <label className="label">Jam</label>
+              <input type="text" maxLength={'11'} className="jamMK" 
+              placeholder='04:00-07:00'
+              onChange={(e) => setJam(e.target.value)}
+              value={jam}
+              required
+              />
+            </div>
+            <div className="control">
+              <label className="label">Kelas</label>
+              <input type="text" maxLength={'15'} className="kelasMK"
+              placeholder='B' 
+              onChange={(e) => setKelas(e.target.value)}
+              value={kelas}
+              required
+              />
+            </div>
+            <div className="control">
+              <label className="label">Kode</label>
+              <input type="text" maxLength={'10'} className="kodeMK" 
+              placeholder='UBU80003'
+              onChange={(e) => setKode(e.target.value)}
+              value={kode}
+              required
+              />
+            </div>
+            <div className="control">
+              <label className="label">SKS</label>
+              <input type="number" max={7} maxLength={1} className="sksMK" 
+              placeholder='3'
+              onChange={(e) => {
+                const tempSks = parseInt(e.target.value);
+                setSks(tempSks);
+              }}
+              value={sks}
+              required
+              />
+            </div>
+          </div>
           <div className="btn-add-save">
             <div className="control">
               <button type='submit'>{isEdit? 'Simpan' : 'Tambah'} Mata Kuliah</button>
@@ -161,15 +374,14 @@ function Input() {
               <td>{cell.kode}</td>
               <td>{cell.sks}</td>
               <td>
-                <button onClick={() => editMk(index)}>Edit</button>
-                <button onClick={() => deleteMk(index)}>Delete</button>
+                {(windowWidth > 700) ? TextAksi(index) : IconAksi(index)}
               </td>
             </tr>
             ))}
           </tbody>
         </table>
         <div className="gen-btn">
-          <Link to={'/tabel'} onClick={() => generate()} className='generate-btn'>Generate</Link>
+          <Link to={'/tabel'} className='generate-btn'>Generate</Link>
         </div>
       </div>
     </div>

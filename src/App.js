@@ -4,6 +4,7 @@ import {CookiesProvider} from 'react-cookie';
 import Home from './component/Home';
 import Input from './component/Input';
 import Table from './component/Table';
+import "@fontsource/poppins";
 
 function App() {
   return (
