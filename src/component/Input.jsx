@@ -28,9 +28,19 @@ function Input() {
     const Cookies = new cookie();
 
     useEffect(() => {
-      if(Cookies.get('dataKRS')){
-        const data = JSON.parse(atob(Cookies.get('dataKRS')));
-        setMk(data);
+      if(mk.length >= 0){
+        const hari = ['Selasa', 'Senin', 'Rabu', 'Kamis', "Jum'at"];
+        let jadwal = [];
+        hari.forEach(day => {
+          if(Cookies.get(`dataKRS${day}`)){
+            let data = atob(Cookies.get(`dataKRS${day}`));
+            if(data !== "undefined"){
+              data = JSON.parse(data);
+              jadwal = [...jadwal, ...data];             
+            }
+          }
+        })
+        setMk([...jadwal])
       }
       const handleWindowResize = () => {
         setWindowWidth(window.innerWidth);
@@ -52,7 +62,7 @@ function Input() {
         {          
           for (let i = 0; i < mkSplit.length; i++) {
             if(mkSplit[i] == "|" || mkSplit[i] == ""
-            || mkSplit[i] == "~") {
+            || mkSplit[i] == "~" || mkSplit[i] == "=") {
               mkSplit.splice(i, 1);
             }
             else if(mkSplit[i].indexOf("|")){
@@ -64,9 +74,16 @@ function Input() {
             }
             if(i == 1) {
               let pattern = /[01][0-9]:[0-5][0-9]-[01][0-9]:[0-5][0-9]/
+              let pattern2 = /[01][0-9]:[0-5][0-9]/
+              let pattern3 = /[01][0-9][0-5][0-9]/
               if(mkSplit[i].match(pattern) == null){
-                mkSplit[i] = mkSplit[i].toString().replaceAll(/[-:]/g, "")
-                mkSplit[i] = mkSplit[i].substring(0, 2) + ":" + mkSplit[i].substring(2, 4) + "-" + mkSplit[i].substring(4, 6) + ":" + mkSplit[i].substring(6, mkSplit[i].length)
+                if(mkSplit[i].match(pattern2) != null || mkSplit[i].match(pattern3) != null){
+                  if(mkSplit[i + 1] == "-"){
+                    mkSplit[i] = mkSplit[i] + mkSplit.splice((i+1), 1) + mkSplit.splice((i+1), 1)
+                  }else if(mkSplit[i].indexOf("-")){
+                    mkSplit[i] = mkSplit[i] + mkSplit.splice((i+1), 1)
+                  }
+                }   
               }
             }
             if(i > 3){
@@ -87,7 +104,10 @@ function Input() {
           dataOCR.push(matKul);
         }
       })
-      if(dataOCR.length > 0) setMk([...mk, ...dataOCR]);
+      if(dataOCR.length > 0){
+        setMk([...mk, ...dataOCR]);
+        setResultTesseract([])
+      }
     }, [resultTesseract])
 
     const addMk = (e) => {
@@ -146,7 +166,17 @@ function Input() {
             mk[i].sks = 0;
           }          
         }
-        Cookies.set('dataKRS', btoa(JSON.stringify(mk)), {path: '/'});
+        const hari = ['Senin', 'Selasa', 'Rabu', 'Kamis', "Jum'at"];
+        let jadwal = [];
+        mk.forEach(matkul => {
+          if(!Array.isArray(jadwal[hari.indexOf(matkul.hari)])){
+            jadwal[hari.indexOf(matkul.hari)] = []
+          }
+          jadwal[hari.indexOf(matkul.hari)].push(matkul);
+        });
+        for (let i = 0; i < 4; i++) {
+          Cookies.set('dataKRS'+hari[i], btoa(JSON.stringify(jadwal[i])), {path: '/'});
+        }
         setIsSuccessSave(true);
       }
 

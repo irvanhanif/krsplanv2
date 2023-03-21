@@ -13,7 +13,20 @@ function Table() {
   const navigate = useNavigate();
   
   useEffect(() => {
-    if(Cookies.get('dataKRS')) setMk(JSON.parse(atob(Cookies.get('dataKRS'))));
+    if(mk.length >= 0){
+      const hari = ['Selasa', 'Senin', 'Rabu', 'Kamis', "Jum'at"];
+      let jadwal = [];
+      hari.forEach(day => {
+        if(Cookies.get(`dataKRS${day}`)){
+          let data = atob(Cookies.get(`dataKRS${day}`));
+          if(data !== "undefined"){
+            data = JSON.parse(data);
+            jadwal = [...jadwal, ...data];             
+          }
+        }
+      })
+      setMk([...jadwal])
+    }
     if(Cookies.get('yourPlanKRS')) {
       setData(JSON.parse(atob(Cookies.get('yourPlanKRS')))[0])
       setSks(JSON.parse(atob(Cookies.get('yourPlanKRS')))[1])
@@ -262,46 +275,55 @@ function Table() {
             }
           }
         }
-        for (let i = 0; i < matkul.length; i++) {
-          for (let j = i+1; j < matkul.length; j++) {
-            if(simJadwal[hari.indexOf(day)]){
-              if(Array.isArray(simJadwal[hari.indexOf(day)])){
-                for (let k = 0; k < simJadwal.length; k++) {
-                  if (matkul[i] != simJadwal[hari.indexOf(day)][k] &&
-                    (convertTimetoInt(matkul[i], 0) <= convertTimetoInt(simJadwal[hari.indexOf(day)][k], 0)) &&
-                    (convertTimetoInt(matkul[i], 1) >= convertTimetoInt(simJadwal[hari.indexOf(day)][k], 1))){
+        let countSplice = 0;
+        do{
+          countSplice = 0;
+          for (let i = 0; i < matkul.length; i++) {
+            for (let j = i+1; j < matkul.length; j++) {
+              if(simJadwal[hari.indexOf(day)]){
+                if(Array.isArray(simJadwal[hari.indexOf(day)])){
+                  for (let k = 0; k < simJadwal.length; k++) {
+                    if (matkul[i] != simJadwal[hari.indexOf(day)][k] &&
+                      (convertTimetoInt(matkul[i], 0) <= convertTimetoInt(simJadwal[hari.indexOf(day)][k], 0)) &&
+                      (convertTimetoInt(matkul[i], 1) >= convertTimetoInt(simJadwal[hari.indexOf(day)][k], 1))){
+                      const mkSplice = matkul.splice(i, 1);
+                      mkSpliced = [...mkSpliced, ...mkSplice];
+                      countSplice++;
+                    }
+                  }
+                }else{
+                  if (matkul[i] != simJadwal[hari.indexOf(day)] &&
+                    ((convertTimetoInt(matkul[i], 0) <= convertTimetoInt(simJadwal[hari.indexOf(day)], 0)) &&
+                    (convertTimetoInt(matkul[i], 1) >= convertTimetoInt(simJadwal[hari.indexOf(day)], 1)) )){
                     const mkSplice = matkul.splice(i, 1);
                     mkSpliced = [...mkSpliced, ...mkSplice];
+                    countSplice++;
                   }
                 }
-              }else{
-                if (matkul[i] != simJadwal[hari.indexOf(day)] &&
-                  ((convertTimetoInt(matkul[i], 0) <= convertTimetoInt(simJadwal[hari.indexOf(day)], 0)) &&
-                  (convertTimetoInt(matkul[i], 1) >= convertTimetoInt(simJadwal[hari.indexOf(day)], 1)) )){
-                  const mkSplice = matkul.splice(i, 1);
-                  mkSpliced = [...mkSpliced, ...mkSplice];
-                }
-              }
-            }else if (convertTimetoInt(matkul[j], 0) < convertTimetoInt(matkul[i], 1)) {
+              }else if (convertTimetoInt(matkul[j], 0) < convertTimetoInt(matkul[i], 1)) {
+                  const mkSplice = matkul.splice(Math.round(Math.random()*1) ? i : j, 1);
+                  countSplice++;
+                  mkSpliced = [...mkSpliced, mkSplice[0]];
+                  let delSimMK = deleteSimilarMk(mkSplice, [...mkArray]);
+                  if(Array.isArray(delSimMK[0]) && Array.isArray(delSimMK[1])){
+                    mkSpliced = [...mkSpliced, ...delSimMK[0]];
+                    mkArray = [...delSimMK[1]];
+                  }
+              } else if (i != j && (convertTimetoInt(matkul[i], 0) == convertTimetoInt(matkul[j], 0) || 
+                convertTimetoInt(matkul[i], 1) == convertTimetoInt(matkul[j], 1) )) {
                 const mkSplice = matkul.splice(Math.round(Math.random()*1) ? i : j, 1);
+                countSplice++;
                 mkSpliced = [...mkSpliced, mkSplice[0]];
                 let delSimMK = deleteSimilarMk(mkSplice, [...mkArray]);
                 if(Array.isArray(delSimMK[0]) && Array.isArray(delSimMK[1])){
                   mkSpliced = [...mkSpliced, ...delSimMK[0]];
                   mkArray = [...delSimMK[1]];
                 }
-            } else if (i != j && (convertTimetoInt(matkul[i], 0) == convertTimetoInt(matkul[j], 0) || 
-              convertTimetoInt(matkul[i], 1) == convertTimetoInt(matkul[j], 1) )) {
-              const mkSplice = matkul.splice(Math.round(Math.random()*1) ? i : j, 1);
-              mkSpliced = [...mkSpliced, mkSplice[0]];
-              let delSimMK = deleteSimilarMk(mkSplice, [...mkArray]);
-              if(Array.isArray(delSimMK[0]) && Array.isArray(delSimMK[1])){
-                mkSpliced = [...mkSpliced, ...delSimMK[0]];
-                mkArray = [...delSimMK[1]];
               }
             }
           }
-        }
+        }while(countSplice > 0);
+        
         matkul.forEach(mkInMatkul => {
           for (let j = 0; j < mkArray.length; j++) {
             if(mkInMatkul.kode == mkArray[j].kode && mkInMatkul.kelas == mkArray[j].kelas && 
@@ -319,9 +341,7 @@ function Table() {
     })
     resultCanAdd = addMKSpliceToJadwal([...fixJadwal], [...mkSpliced]);
     mkSpliced = [...resultCanAdd[2]];
-    // if(resultCanAdd[0]){
     mkArray = [...resultCanAdd[1]];
-    // }
     return {
       fixJadwal: [...fixJadwal],
       mkArray: [...mkArray],
@@ -469,7 +489,6 @@ function Table() {
       mkArray = [...filterSimilar[0]];
       mkSpliced = [...mkSpliced, ...filterSimilar[1]];
     }while(getSimilarMkFromJadwal(mkArray));
-    
     const days = getDaysFromJadwal(mkArray);
     const mkElminates = eliminateMk(days, mkArray, mkSpliced, hari);
 
